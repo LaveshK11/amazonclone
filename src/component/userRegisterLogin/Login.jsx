@@ -1,8 +1,11 @@
 import { React, useState } from "react";
-import { loginUser } from "../Healper/apihit";
+import { useNavigate } from "react-router-dom";
+import Cookies from "js-cookie";
 import Swal from "sweetalert2";
 import Loader from "../common/Loader";
 import { Validation } from "../Healper/helper";
+import { loginUser } from "../Healper/apiCalling";
+
 export default function Login() {
   const [formData, setformData] = useState({
     email: "",
@@ -11,6 +14,12 @@ export default function Login() {
   const [errors, setErrors] = useState({});
   const [showLoader, setShowLoader] = useState(false);
 
+  const navigate = useNavigate();
+
+  function navigateToAnother() {
+    navigate("/");
+  }
+  
   async function handerlProcess(values, e) {
     let valid = await Validation(values, e);
     setErrors(valid);
@@ -26,7 +35,20 @@ export default function Login() {
               showConfirmButton: false,
               timer: 3000,
             });
-            setShowLoader(false);
+            Cookies.set("LoggedIn", true);
+            Cookies.set("email" , formData.email)  
+            navigateToAnother()
+          }, 2500);
+        } else {
+          setTimeout(() => {
+            Swal.fire({
+              position: "top-end",
+              icon: "error",
+              title:  e.message,
+              showConfirmButton: false,
+              timer: 3000,
+            });
+             setShowLoader(false);
           }, 2500);
         }
       });

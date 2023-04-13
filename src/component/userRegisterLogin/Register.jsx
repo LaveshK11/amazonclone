@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { registerUser } from "../Healper/apihit";
+import { registerUser } from "../Healper/apiCalling";
 import Swal from "sweetalert2";
 import Loader from "../common/Loader";
 import { Validation } from "../Healper/helper";
@@ -12,19 +12,18 @@ export default function Register() {
     email: "",
     password: "",
   });
+
   const [errors, setErrors] = useState({});
   const [showLoader, setShowLoader] = useState(false);
-  const [showOtpPage , setshowOtpPage] = useState(false)
+  const [showOtpPage, setshowOtpPage] = useState(false);
 
   async function handerlProcess(values, e) {
     let valid = await Validation(values, e);
-    console.log(valid)
     setErrors(valid);
-    
     if (Object.keys(valid).length <= 0) {
-      setShowLoader(() => true);
+      setShowLoader(true);
       registerUser(values).then((e) => {
-        if (e.success === true && e.code === 1) {
+        if (e.success === true && e.exsist === 1) {
           setTimeout(() => {
             Swal.fire({
               position: "top-end",
@@ -36,7 +35,7 @@ export default function Register() {
             setShowLoader(false);
           }, 2500);
         } else {
-          setShowLoader(() => true);
+          setShowLoader(true);
           setTimeout(() => {
             Swal.fire({
               position: "mid",
@@ -45,72 +44,78 @@ export default function Register() {
               showConfirmButton: false,
               timer: 3000,
             });
-            setShowLoader(false);
-            setshowOtpPage(true)
+            setshowOtpPage(true);
           }, 2500);
         }
       });
     }
   }
 
-  return (<>
-   {showOtpPage ? <OptVerification/>:   <div className="container_register">
-      <h1>Register</h1>
-      <form>
-        <input
-          type="text"
-          placeholder="Name"
-          required
-          value={formData.username}
-          onChange={(event) => 
-            setformData({
-              ...formData,
-              username: event.target.value,
-            })
-          }
-        />
-        {errors.name && <p style={{ color: "red" }}>{errors.name}</p>}
-        <input
-          type="email"
-          placeholder="Email"
-          required
-          value={formData.email}
-          onChange={(event) =>
-            setformData({
-              ...formData,
-              email: event.target.value,
-            })
-          }
-        />
-        {errors.email && <p style={{ color: "red" }}>{errors.email}</p>}
-        <input
-          type="password"
-          placeholder="Password"
-          required
-          onChange={(event) =>
-            setformData({
-              ...formData,
-              password: event.target.value,
-            })
-          }
-        />
-        {errors.password && <p style={{ color: "red" }}>{errors.password}</p>}
-        <button
-          id="btn_submit"
-          type="submit"
-          onClick={(e) => {
-            handerlProcess(formData, e);
-          }}
-        >
-          Register
-          {showLoader ? <Loader /> : ""}
-        </button>
+  return (
+    <>
+      {showOtpPage ? (
+        <OptVerification userData={formData} />
+      ) : (
+        <div className="container_register">
+          <h1>Register</h1>
+          <form>
+            <input
+              type="text"
+              placeholder="Name"
+              required
+              value={formData.username}
+              onChange={(event) =>
+                setformData({
+                  ...formData,
+                  username: event.target.value,
+                })
+              }
+            />
+            {errors.name && <p style={{ color: "red" }}>{errors.name}</p>}
+            <input
+              type="email"
+              placeholder="Email"
+              required
+              value={formData.email}
+              onChange={(event) =>
+                setformData({
+                  ...formData,
+                  email: event.target.value,
+                })
+              }
+            />
+            {errors.email && <p style={{ color: "red" }}>{errors.email}</p>}
+            <input
+              type="password"
+              placeholder="Password"
+              required
+              onChange={(event) =>
+                setformData({
+                  ...formData,
+                  password: event.target.value,
+                })
+              }
+            />
+            {errors.password && (
+              <p style={{ color: "red" }}>{errors.password}</p>
+            )}
+            <button
+              id="btn_submit"
+              type="submit"
+              onClick={(e) => {
+                handerlProcess(formData, e);
+              }}
+            >
+              Register
+              {showLoader ? <Loader /> : ""}
+            </button>
 
-        <p>
-          Already have an account? <Link  to="/login">Log in</Link>
-        </p>
-      </form>
-    </div>}
+            <p>
+              Already have an account? <Link to="/login">Log in</Link>
+            </p>
+          </form>
+        </div>
+      )}
     </>
   );
 }
